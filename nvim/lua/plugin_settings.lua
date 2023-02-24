@@ -46,7 +46,7 @@ vim.keymap.set("n", "gR",
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 local null_ls = require("null-ls")
 
-local sources = { 
+local sources = {
   null_ls.builtins.diagnostics.pylint,
   null_ls.builtins.completion.spell,
 }
@@ -61,6 +61,15 @@ lsp.nvim_workspace()
 
 lsp.configure('gdscript', {
   force_setup = true
+})
+
+-- copilot
+-- lsp takes over copilot -- so need to unmap the tab
+vim.g.copilot_assume_mapped = true
+vim.g.copilot_no_tab_map = true
+vim.api.nvim_set_keymap("i", "<C-u>", 'copilot#Accept("<CR>")', {
+  silent = true,
+  expr = true
 })
 
 lsp.setup()
