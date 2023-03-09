@@ -10,6 +10,17 @@ export HISTFILE="$ZDOTDIR/.zhistory"    # History filepath
 export HISTSIZE=10000                   # Maximum events for internal history
 export SAVEHIST=10000                   # Maximum events in history file
 
+
+# COLOR
+# less
+export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
+export LESS='-R --use-color -Dd+r$Du+b'
+# export LESS='-R '
+# man
+export MANPAGER="less -R --use-color -Dd+r -Du+b"
+
+
+# Path updates
 . "$HOME/.cargo/env"
 export PATH=${PATH}:${DOTFILES}/bin
 export PATH=${PATH}:${HOME}/.bin
