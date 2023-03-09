@@ -61,6 +61,7 @@ case `uname` in
     # fzf
     if [ $(command -v "fzf") ]; then
         source $DOTFILES/zsh/fzf/linux-fzf.zsh
+        eval "$(starship init zsh)"
     fi
   ;;
   FreeBSD)
