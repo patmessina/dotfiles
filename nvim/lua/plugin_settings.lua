@@ -2,6 +2,8 @@
 vim.cmd[[colorscheme neon]]
 vim.g.neon_style = "doom"
 
+-- comments
+require('Comment').setup()
 
 -- statusline
 require('lualine').setup {

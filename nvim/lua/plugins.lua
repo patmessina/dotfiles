@@ -32,6 +32,8 @@ return require('packer').startup(function()
     requires = { {'nvim-lua/plenary.nvim'} }
   }
 
+  -- icons for telescope
+  use 'nvim-tree/nvim-web-devicons'
 
   -- git
   use {
@@ -45,7 +47,6 @@ return require('packer').startup(function()
   -- tag = 'release' -- To use the latest release
   }
 
-  -- use { 'nvim-tree/nvim-web-devicons' }
 
   use {
     'jose-elias-alvarez/null-ls.nvim',
@@ -69,12 +70,7 @@ return require('packer').startup(function()
 
 
   -- comments
-  use {
-    'numToStr/Comment.nvim',
-    config = function()
-      require('Comment').setup()
-    end
-  }
+  use { 'numToStr/Comment.nvim' }
 
   use {
     'rmagatti/auto-session',
