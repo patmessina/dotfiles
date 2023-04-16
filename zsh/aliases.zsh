@@ -7,7 +7,7 @@ alias ....="cd ../../.."
 alias ls="ls --color"
 alias ll="ls -l"
 
-alias rm="rm -I"
+alias rm="rm -i"
 alias cp="cp -i"
 alias mkdir="mkdir -p"
 
