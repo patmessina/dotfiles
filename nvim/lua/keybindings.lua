@@ -5,7 +5,6 @@ vim.g.mapleader = ' '
 local map = vim.api.nvim_set_keymap
 local options = {noremap = true}
 
-
 -- next buffer
 map('n', '<c-n>', '<cmd>bnext<cr>', options)
 map('n', '<c-p>', '<cmd>bprev<cr>', options)

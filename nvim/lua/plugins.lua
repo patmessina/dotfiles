@@ -1,90 +1,99 @@
-return require('packer').startup(function()
+require("lazy").setup({
 
-  -- Packer can manage itself
-  use 'wbthomason/packer.nvim'
-
-  -- color
-  -- https://github.com/rafamadriz/neon
-  use "rafamadriz/neon"
-
-
-  -- surrounding stuff
-
-  use({
-    "kylechui/nvim-surround",
-    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+  -- colorscheme
+  {
+    "rafamadriz/neon",
+    lazy = false, -- load during startup
+    priority = 1000, -- load this before all the other start plugins
     config = function()
-        require("nvim-surround").setup({
+      -- load the colorscheme here
+      vim.cmd([[colorscheme neon]])
+    end,
+  },
+
+  -- autopair
+  {
+    'altermo/ultimate-autopair.nvim',
+    event={'InsertEnter','CmdlineEnter'},
+    branch='v0.6',
+    opts={
+      tabout={enable=true}
+    },
+  },
+  
+  -- surround
+  {
+    'kylechui/nvim-surround',
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
+    event = 'VeryLazy',
+    config = function()
+        require('nvim-surround').setup({
             -- Configuration here, or leave empty to use defaults
         })
     end
-  })
-
-  -- A super powerful autopair plugin for Neovim that supports multiple characters.
-  use {
-      "windwp/nvim-autopairs",
-    config = function() require("nvim-autopairs").setup {} end
-  }
+  },
 
   -- telescope.nvim is a highly extendable fuzzy finder over lists.
-  use {
-    'nvim-telescope/telescope.nvim',
-    requires = { {'nvim-lua/plenary.nvim'} }
-  }
-
-  -- icons for telescope
-  use 'nvim-tree/nvim-web-devicons'
+  {
+    'nvim-telescope/telescope.nvim', tag = '0.1.2',
+    dependencies = { 
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons'
+    },
+    keys = {
+      {'<leader>ff', '<cmd>Telescope find_files<cr>', desc="file search"},
+      {'<leader>fg', '<cmd>Telescope live_grep<cr>', desc="grep over files"},
+      {'<leader>fb', '<cmd>Telescope buffers<cr>', desc="search buffers"},
+      {'<leader>fh', '<cmd>Telescope help_tags<cr>', desc="search help tags"},
+    }
+  },
 
   -- git
-  use {
+  {
     'lewis6991/gitsigns.nvim',
-    requires = {
+    dependencies = { 
       'nvim-lua/plenary.nvim'
     },
     config = function()
       require('gitsigns').setup()
     end
-  -- tag = 'release' -- To use the latest release
-  }
+  },
 
-
-  use {
-    'jose-elias-alvarez/null-ls.nvim',
-    requires = {
-      'nvim-lua/plenary.nvim'
-    }
-  }
-
-  -- nice statusline
-  -- https://github.com/nvim-lualine/lualine.nvim
-  use {
+  -- status line
+  {
     'nvim-lualine/lualine.nvim',
-    requires = {'kyazdani42/nvim-web-devicons',
-      opt = true}
-  }
-
-
-  -- treesitter
-  -- https://github.com/nvim-treesitter/nvim-treesitter
-  -- use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
-
+    lazy = false,
+    dependencies = {'nvim-tree/nvim-web-devicons'},
+    opts = {theme = 'neon'},
+    config = function()
+      require("lualine").setup()
+    end
+  },
 
   -- comments
-  use { 'numToStr/Comment.nvim' }
+  {
+    'numToStr/Comment.nvim',
+    lazy = false,
+    opts = {},
+  },
 
-  use {
+  -- auto session
+  {
     'rmagatti/auto-session',
+    opt = {
+      log_level = "error",
+      auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/"},
+    },
     config = function()
-      require("auto-session").setup {
-        log_level = "error",
-        auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/"},
-      }
+      require("auto-session").setup()
     end
-  }
+  },
 
-  use {
+  -- autocomplete
+  {
     'VonHeikemen/lsp-zero.nvim',
-    requires = {
+    branch = 'v2.x',
+    dependencies = {
       -- LSP Support
       {'neovim/nvim-lspconfig'},
       {'williamboman/mason.nvim'},
@@ -102,49 +111,99 @@ return require('packer').startup(function()
       -- Snippets
       {'L3MON4D3/LuaSnip'},
       {'rafamadriz/friendly-snippets'},
-    }
-  }
+
+    },
+    config = function()
+
+      local lsp = require('lsp-zero').preset({})
+      lsp.on_attach(function(client, bufnr)
+        -- see :help lsp-zero-keybindings
+        -- to learn the available actions
+        lsp.default_keymaps({buffer = bufnr})
+      end)
+      require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+
+      lsp.setup()
+
+
+      -- auto complete
+      local cmp = require('cmp')
+      local cmp_action = require('lsp-zero').cmp_action()
+
+      cmp.setup({
+        mapping = {
+          -- `Enter` key to confirm completion
+          ['<CR>'] = cmp.mapping.confirm({select = false}),
+
+          -- Ctrl+Space to trigger completion menu
+          ['<C-Space>'] = cmp.mapping.complete(),
+
+          -- Navigate between snippet placeholder
+          ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+          ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+        }
+      })
+
+    end
+  },
+
+  -- TODO: null ls replacement? no longer maintained
+--  {
+--    'jose-elias-alvarez/null-ls.nvim',
+--     dependencies = {'nvim-lua/plenary.nvim'},
+--     config = function()
+--     end
+--  },
 
   -- copilot
-  use { 'github/copilot.vim' }
+  { 'github/copilot.vim' },
 
-  -- use "lukas-reineke/lsp-format.nvim"
+  {
+    'folke/trouble.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    keys = {
+      {'<leader>xx', '<cmd>TroubleToggle<cr>', desc='Start trouble'},
+    }
+  },
 
-  -- A pretty list for showing diagnostics, references, telescope results, quickfix
-  -- and location lists to help you solve all the trouble your code is causing.
-  use {
-    "folke/trouble.nvim",
-    requires = "kyazdani42/nvim-web-devicons",
-    config = function()
-    require("trouble").setup {}
-    end
-  }
-
-  -- Lua
-  use {
+  -- todos
+  {
     "folke/todo-comments.nvim",
-    requires = "nvim-lua/plenary.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      {'<leader>td', '<cmd>TodoTelescope<cr>', desc='search todos'},
+    },
+    opts = {}
+  },
+
+  {
+  "ray-x/go.nvim",
+  dependencies = {  -- optional packages
+    "ray-x/guihua.lua",
+    "neovim/nvim-lspconfig",
+    "nvim-treesitter/nvim-treesitter",
+  },
+  config = function()
+    require("go").setup()
+
+        -- Run gofmt on save
+
+    local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      pattern = "*.go",
+      callback = function()
+      require('go.format').gofmt()
+      end,
+      group = format_sync_grp,
+    })
+
+  end,
+  event = {"CmdlineEnter"},
+  ft = {"go", 'gomod'},
+    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
   }
-
-  -- Language specific
-
-  -- go
-  -- use { 'ray-x/go.nvim' }
-  use { 'fatih/vim-go' }
 
   -- godot
-  use {
-      'habamax/vim-godot'
-  }
+  -- { 'habamax/vim-godot' }
 
-  -- rust
-  use {
-    'simrat39/rust-tools.nvim',
-    requires = {
-        'nvim-lua/plenary.nvim',
-        'mfussenegger/nvim-dap'
-    }
-  }
-
-
-end)
+})
