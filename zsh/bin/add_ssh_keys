@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Path to your SSH key file
+ssh_key_path="$1"
+
+# Array of hostnames or IP addresses of the nodes
+nodes=("${@:2}")
+
+# SSH username to log in to the nodes
+ssh_username=$(whoami)
+
+add_ssh_key() {
+  local node=$1
+
+  echo "Adding SSH key to $node..."
+
+  # Copy the SSH key to the remote node using ssh-copy-id
+  ssh-copy-id -i "$ssh_key_path" "$ssh_username@$node"
+
+  if [ $? -eq 0 ]; then
+    echo "SSH key added successfully to $node."
+  else
+    echo "Failed to add SSH key to $node."
+  fi
+}
+
+# Loop through the nodes and add the SSH key
+for node in "${nodes[@]}"; do
+  add_ssh_key "$node"
+done
