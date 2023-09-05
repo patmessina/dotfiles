@@ -44,6 +44,12 @@ vim.keymap.set("n", "gR",
   "<cmd>TroubleToggle lsp_references<cr>",
   {silent = true, noremap = true})
 
+-- todo comments
+require("todo-comments").setup {}
+vim.keymap.set("n", "<leader>td",
+  "<cmd>TodoTelescope<cr>",
+  {silent = true, noremap = true})
+
 -- null-ls
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 local null_ls = require("null-ls")

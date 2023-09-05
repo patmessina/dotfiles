@@ -120,6 +120,12 @@ return require('packer').startup(function()
     end
   }
 
+  -- Lua
+  use {
+    "folke/todo-comments.nvim",
+    requires = "nvim-lua/plenary.nvim",
+  }
+
   -- Language specific
 
   -- go
