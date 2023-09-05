@@ -69,6 +69,11 @@ case `uname` in
   ;;
 esac
 
+# if pyenv is installed, setup
+if [ $(command -v "pyenv") ]; then
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
 
 if [[ ${COMP_TYPE} == "WORK" || "${COMP_TYPE}" == "WORK_SERVER" ]]; then
   source ${WORK_DOTFILES}/zsh/work-zshrc.zsh

@@ -24,3 +24,5 @@ export MANPAGER="less -R --use-color -Dd+r -Du+b"
 . "$HOME/.cargo/env"
 export PATH=${PATH}:${DOTFILES}/bin
 export PATH=${PATH}:${HOME}/.bin
+
+export PYENV_ROOT="$HOME/.pyenv"
