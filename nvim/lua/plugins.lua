@@ -1,13 +1,12 @@
 require("lazy").setup({
 
-  -- colorscheme
   {
-    "rafamadriz/neon",
+    "shaunsingh/nord.nvim",
     lazy = false, -- load during startup
     priority = 1000, -- load this before all the other start plugins
     config = function()
       -- load the colorscheme here
-      vim.cmd([[colorscheme neon]])
+      vim.cmd([[colorscheme nord]])
     end,
   },
 
@@ -64,7 +63,7 @@ require("lazy").setup({
     'nvim-lualine/lualine.nvim',
     lazy = false,
     dependencies = {'nvim-tree/nvim-web-devicons'},
-    opts = {theme = 'neon'},
+    opts = {theme = 'nord'},
     config = function()
       require("lualine").setup()
     end
@@ -123,6 +122,10 @@ require("lazy").setup({
       end)
       require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
+      lsp.configure('gdscript', {
+        force_setup = true
+      })
+
       lsp.setup()
 
 
@@ -177,6 +180,15 @@ require("lazy").setup({
   },
 
   {
+    "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("nvim-treesitter.configs").setup {
+        highlight = {enable = true},
+      }
+    end
+  },
+
+  {
   "ray-x/go.nvim",
   dependencies = {  -- optional packages
     "ray-x/guihua.lua",
@@ -201,9 +213,9 @@ require("lazy").setup({
   event = {"CmdlineEnter"},
   ft = {"go", 'gomod'},
     build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
-  }
+  },
 
   -- godot
-  -- { 'habamax/vim-godot' }
+  { 'habamax/vim-godot' }
 
 })
