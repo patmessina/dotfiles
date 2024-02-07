@@ -10,6 +10,15 @@ require("lazy").setup({
     end,
   },
 
+  -- base64 encode and decode
+  { 
+    'taybart/b64.nvim',
+    keys = {
+      {'<leader>be', ':B64Encode<cr>', mode="v", desc="file search"},
+      {'<leader>bd', ':B64Decode<cr>', mode="v", desc="file search"},
+    }
+  },
+
   -- autopair
   {
     'altermo/ultimate-autopair.nvim',
@@ -205,6 +214,7 @@ require("lazy").setup({
       pattern = "*.go",
       callback = function()
       require('go.format').gofmt()
+      require('go.format').goimport()
       end,
       group = format_sync_grp,
     })
@@ -215,7 +225,27 @@ require("lazy").setup({
     build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
   },
 
+  -- markdown
+  -- install without yarn or npm
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = function() vim.fn["mkdp#util#install"]() end,
+  },
+
+  {
+    "preservim/vim-markdown",
+    dependencies = { "godlygeek/tabular" },
+    ft = { "markdown" },
+    config = function()
+    end
+  },
+
   -- godot
-  { 'habamax/vim-godot' }
+  {
+    'habamax/vim-godot',
+    ft = { "gdscript" },
+  }
 
 })
