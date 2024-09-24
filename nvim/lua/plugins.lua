@@ -1,5 +1,6 @@
 require("lazy").setup({
 
+  -- colorscheme
   {
     "shaunsingh/nord.nvim",
     lazy = false, -- load during startup
@@ -10,25 +11,15 @@ require("lazy").setup({
     end,
   },
 
-  -- base64 encode and decode
-  { 
-    'taybart/b64.nvim',
-    keys = {
-      {'<leader>be', ':B64Encode<cr>', mode="v", desc="file search"},
-      {'<leader>bd', ':B64Decode<cr>', mode="v", desc="file search"},
-    }
+  -- autopair {}
+  {
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    config = true
+    -- use opts = {} for passing setup options
+    -- this is equivalent to setup({}) function
   },
 
-  -- autopair
-  {
-    'altermo/ultimate-autopair.nvim',
-    event={'InsertEnter','CmdlineEnter'},
-    branch='v0.6',
-    opts={
-      tabout={enable=true}
-    },
-  },
-  
   -- surround
   {
     'kylechui/nvim-surround',
@@ -41,9 +32,16 @@ require("lazy").setup({
     end
   },
 
+  -- treesitter
+  -- {
+  --   'nvim-treesitter/nvim-treesitter',
+  --   run = ":TSUpdate"
+  -- },
+
+
   -- telescope.nvim is a highly extendable fuzzy finder over lists.
   {
-    'nvim-telescope/telescope.nvim', tag = '0.1.2',
+    'nvim-telescope/telescope.nvim', tag = '0.1.8',
     dependencies = { 
       'nvim-lua/plenary.nvim',
       'nvim-tree/nvim-web-devicons'
@@ -66,6 +64,7 @@ require("lazy").setup({
       require('gitsigns').setup()
     end
   },
+
 
   -- status line
   {
@@ -100,7 +99,7 @@ require("lazy").setup({
   -- autocomplete
   {
     'VonHeikemen/lsp-zero.nvim',
-    branch = 'v2.x',
+    branch = 'v4.x',
     dependencies = {
       -- LSP Support
       {'neovim/nvim-lspconfig'},
@@ -115,6 +114,7 @@ require("lazy").setup({
       {'hrsh7th/cmp-nvim-lsp'},
       {'hrsh7th/cmp-nvim-lua'},
       {'hrsh7th/cmp-copilot'},
+      {'hrsh7th/cmp-nvim-lsp-signature-help'},
 
       -- Snippets
       {'L3MON4D3/LuaSnip'},
@@ -123,129 +123,66 @@ require("lazy").setup({
     },
     config = function()
 
-      local lsp = require('lsp-zero').preset({})
-      lsp.on_attach(function(client, bufnr)
-        -- see :help lsp-zero-keybindings
-        -- to learn the available actions
-        lsp.default_keymaps({buffer = bufnr})
-      end)
-      require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
-      lsp.configure('gdscript', {
-        force_setup = true
+      local lsp_zero = require('lsp-zero')
+
+      -- lsp_attach is where you enable features that only work
+      -- if there is a language server active in the file
+      local lsp_attach = function(client, bufnr)
+        lsp_zero.default_keymaps({buffer = bufnr})
+      end
+
+      lsp_zero.extend_lspconfig({
+        sign_text = true,
+        lsp_attach = lsp_attach,
+        capabilities = require('cmp_nvim_lsp').default_capabilities(),
       })
 
-      lsp.setup()
-
-
-      -- auto complete
-      local cmp = require('cmp')
-      local cmp_action = require('lsp-zero').cmp_action()
-
-      cmp.setup({
-        mapping = {
-          -- `Enter` key to confirm completion
-          ['<CR>'] = cmp.mapping.confirm({select = false}),
-
-          -- Ctrl+Space to trigger completion menu
-          ['<C-Space>'] = cmp.mapping.complete(),
-
-          -- Navigate between snippet placeholder
-          ['<C-f>'] = cmp_action.luasnip_jump_forward(),
-          ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+      require('mason').setup({})
+      require('mason-lspconfig').setup({
+        -- ensure_installed = {'lua_ls', 'rust_analyzer'},
+        handlers = {
+          function(server_name)
+            require('lspconfig')[server_name].setup({})
+          end,
         }
       })
 
+      local cmp = require('cmp')
+
+      local cmp_select = {behavior = cmp.SelectBehavior.Select}
+      cmp.setup({
+        sources = {
+          {name = 'nvim_lsp'},
+          {name = 'nvim_lsp_signature_help'}
+        },
+        snippet = {
+          expand = function(args)
+            -- You need Neovim v0.10 to use vim.snippet
+            vim.snippet.expand(args.body)
+          end,
+        },
+        -- mapping = cmp.mapping.preset.insert({}),
+        mapping = {
+          -- `Enter` key to confirm completion
+          -- ['<Tab>'] = cmp.mapping.select_next_item(cmp_select),
+          -- ['<S-Tab>'] = cmp.mapping.select_prev_item(cmp_select),
+          ['<CR>'] = cmp.mapping.confirm({select = true}),
+        }
+      })
+
+      -- signatures
+
     end
   },
-
-  -- TODO: null ls replacement? no longer maintained
---  {
---    'jose-elias-alvarez/null-ls.nvim',
---     dependencies = {'nvim-lua/plenary.nvim'},
---     config = function()
---     end
---  },
 
   -- copilot
   { 'github/copilot.vim' },
 
-  {
-    'folke/trouble.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    keys = {
-      {'<leader>xx', '<cmd>TroubleToggle<cr>', desc='Start trouble'},
-    }
-  },
-
-  -- todos
-  {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    keys = {
-      {'<leader>td', '<cmd>TodoTelescope<cr>', desc='search todos'},
-    },
-    opts = {}
-  },
-
-  {
-    "nvim-treesitter/nvim-treesitter",
-    config = function()
-      require("nvim-treesitter.configs").setup {
-        highlight = {enable = true},
-      }
-    end
-  },
-
-  {
-  "ray-x/go.nvim",
-  dependencies = {  -- optional packages
-    "ray-x/guihua.lua",
-    "neovim/nvim-lspconfig",
-    "nvim-treesitter/nvim-treesitter",
-  },
-  config = function()
-    require("go").setup()
-
-        -- Run gofmt on save
-
-    local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      pattern = "*.go",
-      callback = function()
-      require('go.format').gofmt()
-      require('go.format').goimport()
-      end,
-      group = format_sync_grp,
-    })
-
-  end,
-  event = {"CmdlineEnter"},
-  ft = {"go", 'gomod'},
-    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
-  },
-
-  -- markdown
-  -- install without yarn or npm
-  {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
-  },
-
-  {
-    "preservim/vim-markdown",
-    dependencies = { "godlygeek/tabular" },
-    ft = { "markdown" },
-    config = function()
-    end
-  },
-
   -- godot
-  {
-    'habamax/vim-godot',
-    ft = { "gdscript" },
-  }
+  -- {
+  --   'habamax/vim-godot',
+  --   ft = { "gdscript" },
+  -- }
 
 })

@@ -56,6 +56,8 @@ case `uname` in
     if [ $(command -v "fzf") ]; then
         source $DOTFILES/zsh/fzf/darwin-fzf.zsh
     fi
+
+    export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
   ;;
   Linux)
     # fzf
